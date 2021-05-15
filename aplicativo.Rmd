@@ -1,0 +1,526 @@
+---
+title: "Clusters Musicais Asom"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    source_code: embed
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+
+# Carrega Bibliotecas
+library(dplyr)
+library(stringr)
+library(readr)
+library(ggplot2)
+library(purrr)
+library(data.table)
+library(plotly)
+library(caret)
+library(reshape2)
+library(dendextend)
+library(RColorBrewer)
+library(ggdendro)
+library(RColorBrewer)
+
+# Importa acordes
+acordes <- read_csv("data/acordes_limpo.csv")
+
+# Importa letras
+letras <- read_csv("data/letras_limpo.csv")
+
+# Declara vetor de cores
+col_vector = c("#B15928", "#F781BF", "#E31A1C", "#66C2A5",
+               "#FB9A99", "#FBB4AE", "#DECBE4", "#B3B3B3",
+               "#E6AB02", "#999999", "#CCCCCC", "#B3CDE3",
+               "#FB8072", "#1F78B4", "#E6F5C9", "#A65628",
+               "#FC8D62", "#D95F02", "#8DD3C7", "#FF7F00",
+               "#CAB2D6", "#666666", "#66A61E", "#F1E2CC",
+               "#6A3D9A", "#D9D9D9", "#FF7F00", "#CCEBC5",
+               "#F4CAE4", "#FDB462")
+
+# Declara nova funcao
+newggplot.ggdend <- function (data, segments = TRUE, labels = TRUE, nodes = TRUE, 
+                              horiz = FALSE, theme = theme_dendro(), offset_labels = 0, ...) {
+  data <- prepare.ggdend(data)
+  #angle <- ifelse(horiz, 0, 90)
+  #hjust <- ifelse(horiz, 0, 1)
+  p <- ggplot()
+  if (segments) {
+    p <- p + geom_segment(data = data$segments,
+                          aes_string(x = "x",
+                                     y = "y",
+                                     xend = "xend",
+                                     yend = "yend",
+                                     colour = "col",
+                                     linetype = "lty",
+                                     size = "lwd"),
+                          lineend = "square") + 
+      guides(linetype = FALSE, col = FALSE) + scale_colour_identity() + 
+      scale_size_identity() + scale_linetype_identity()
+  }
+  if (nodes) {
+    p <- p + geom_point(data = data$nodes,
+                        aes_string(x = "x",
+                                   y = "y",
+                                   colour = "col",
+                                   shape = "pch",
+                                   size = "cex")) + 
+      guides(shape = FALSE, col = FALSE, size = FALSE) + 
+      scale_shape_identity()
+  }
+  if (labels) {
+    data$labels$cex <- 5 * data$labels$cex
+    data$labels$y <- data$labels$y + offset_labels
+    p <- p + geom_text(data = data$labels, aes_string(x = "x",
+                                                      y = "y",
+                                                      label = "label",
+                                                      colour = "col",
+                                                      size = "cex",
+                                                      angle = "angle",
+                                                      hjust = "hjust",
+                                                      vjust = "vjust"))#edited
+  }
+  if (horiz) {
+    p <- p + coord_flip() + scale_y_reverse(expand = c(0.2, 0))
+  }
+  if (!is.null(theme)) {
+    p <- p + theme
+  }
+  p
+}
+
+# Indica nova funcao
+assignInNamespace(x = "ggplot.ggdend", ns = "dendextend", value = newggplot.ggdend)
+
+```
+
+Sidebar {.sidebar}
+=======================================================================
+
+### 
+
+
+```{r}
+
+# Selecione quantidade de acordes
+sliderInput("acordes",
+            "Número de Acordes",
+            min = 1,
+            max = 4,
+            value = 1)
+
+# Selecione quantidade de acordes
+sliderInput("palavras",
+            "Número de Palavras",
+            min = 1,
+            max = 4,
+            value = 1)
+
+# Seleciona artista
+selectInput("artista",
+            "Artistas",
+            choices = sort(unique(acordes$Artistas)))
+
+# Seleciona metrica de distancia
+selectInput("metrica",
+            "Metrica de Distâncias",
+            choices = c("euclidean",
+                        "maximum",
+                        "manhattan",
+                        "canberra",
+                        "binary",
+                        "minkowski"),
+            selected = "canberra")
+
+# Seleciona numero de cluster
+sliderInput("k",
+            "Numero de Clusters",
+            min = 1,
+            max = 30,
+            value = 20)
+
+# Seleciona metrica de cluster
+selectInput("link",
+            "Metrica de Ligação",
+            choices = c("ward.D",
+                        "ward.D2",
+                        "single",
+                        "complete",
+                        "average",
+                        "mcquitty",
+                        "median",
+                        "centroid"))
+
+```
+
+
+Acordes
+=======================================================================
+
+Row
+-----------------------------------------------------------------------
+
+### Sequência de Acordes Mais Utilizados 
+
+```{r}
+  
+# Renderiza Grafico 
+renderPlotly({
+  
+  # Define cifra de Artista
+  cifra <- acordes[acordes$Artistas == input$artista, ]
+  
+  # Condicao de numero de acordes
+  if(input$acordes == 1){
+    
+    # Contagem de Acorde mais comun
+    bb_count <- cifra %>%
+      group_by(Acordes) %>%
+      count() %>%
+      arrange(desc(n)) %>%
+      ungroup() %>%
+      slice(1:30) %>%
+      mutate(Acordes = reorder(Acordes, n))
+    
+    
+  } else if(input$acordes == 2){
+    
+    # Calcula Bigrama
+    bb_count <- cifra %>%
+      mutate(Proximo_acorde = lead(Acordes,1),
+             Proxima_musica = lead(Musicas,1),
+             Acordes = str_c(Acordes, " ", Proximo_acorde)) %>%
+      filter(Musicas == Proxima_musica) %>%
+      group_by(Acordes) %>%
+      count() %>%
+      arrange(desc(n)) %>%
+      ungroup() %>%
+      slice(1:30)  %>%
+      mutate(Acordes = reorder(Acordes, n))
+    
+  } else if(input$acordes == 3){
+    
+    # Calcula trigrama
+    bb_count <- cifra %>%
+      mutate(Proximo_acorde_1 = lead(Acordes,1),
+             Proxima_musica_1 = lead(Musicas,1),
+             Proximo_acorde_2 = lead(Acordes,2),
+             Proxima_musica_2 = lead(Musicas,2),
+             Acordes = str_c(Acordes, " ", Proximo_acorde_1, " ", Proximo_acorde_2)) %>%
+      filter((Musicas == Proxima_musica_1) & (Musicas == Proxima_musica_2)) %>%
+      group_by(Acordes) %>%
+      count() %>%
+      arrange(desc(n)) %>%
+      ungroup() %>%
+      slice(1:30) %>%
+      mutate(Acordes = reorder(Acordes, n))
+    
+  } else if(input$acordes == 4){
+    
+    # Calcula quadrigrama
+    bb_count <- cifra %>%
+      mutate(Proximo_acorde_1 = lead(Acordes,1),
+             Proxima_musica_1 = lead(Musicas,1),
+             Proximo_acorde_2 = lead(Acordes,2),
+             Proxima_musica_2 = lead(Musicas,2),
+             Proximo_acorde_3 = lead(Acordes,3),
+             Proxima_musica_3 = lead(Musicas,3),
+             Acordes = str_c(Acordes, " ",
+                            Proximo_acorde_1, " ",
+                            Proximo_acorde_2, " ",
+                            Proximo_acorde_2)) %>%
+      filter((Musicas == Proxima_musica_1) &
+             (Musicas == Proxima_musica_2) &
+             (Musicas == Proxima_musica_3)) %>%
+      group_by(Acordes) %>%
+      count() %>%
+      arrange(desc(n)) %>%
+      ungroup() %>%
+      slice(1:30) %>%
+      mutate(Acordes = reorder(Acordes, n))
+    
+  }
+  
+  bb_count %>%
+  plot_ly(x = ~n,
+          y = ~Acordes,
+          type = 'bar',
+          orientation = 'h',
+          color = ~Acordes) %>%
+  layout(xaxis = list(title = "Frequência",tickfont = list(size = 15)),
+         yaxis = list(title = "",tickfont = list(size = 15)))%>%
+  hide_legend()
+  
+})
+
+
+```
+
+
+Palavras
+=======================================================================
+
+Row
+-----------------------------------------------------------------------
+
+### Sequência de Palavras Mais Utilizadas 
+
+```{r}
+  
+# Renderiza Grafico 
+renderPlotly({
+  
+  # Define letra de Artista
+  letra <- letras[letras$Artistas == input$artista, ]
+  
+  # Condicao de numero de acordes
+  if(input$palavras == 1){
+    
+    # Contagem de Acorde mais comun
+    bb_count <- letra %>%
+      group_by(Palavras) %>%
+      count() %>%
+      arrange(desc(n)) %>%
+      ungroup() %>%
+      slice(1:30) %>%
+      mutate(Palavras = reorder(Palavras, n))
+    
+    
+  } else if(input$palavras == 2){
+    
+    # Calcula Bigrama
+    bb_count <- letra %>%
+      mutate(Proxima_palavra = lead(Palavras,1),
+             Proxima_musica = lead(Musicas,1),
+             Palavras = str_c(Palavras, " ",
+                              Proxima_palavra)) %>%
+      filter(Musicas == Proxima_musica) %>%
+      group_by(Palavras) %>%
+      count() %>%
+      arrange(desc(n)) %>%
+      ungroup() %>%
+      slice(1:30)  %>%
+      mutate(Palavras = reorder(Palavras, n))
+    
+  } else if(input$palavras == 3){
+    
+    # Calcula trigrama
+    bb_count <- letra %>%
+      mutate(Proxima_palavra_1 = lead(Palavras,1),
+             Proxima_musica_1 = lead(Musicas,1),
+             Proxima_palavra_2 = lead(Palavras,2),
+             Proxima_musica_2 = lead(Musicas,2),
+             Palavras = str_c(Palavras, " ",
+                              Proxima_palavra_1, " ",
+                              Proxima_palavra_2)) %>%
+      filter((Musicas == Proxima_musica_1) & (Musicas == Proxima_musica_2)) %>%
+      group_by(Palavras) %>%
+      count() %>%
+      arrange(desc(n)) %>%
+      ungroup() %>%
+      slice(1:30) %>%
+      mutate(Palavras = reorder(Palavras, n))
+    
+  } else if(input$palavras == 4){
+    
+    # Calcula quadrigrama
+    bb_count <- letra %>%
+      mutate(Proxima_palavra_1 = lead(Palavras,1),
+             Proxima_musica_1 = lead(Musicas,1),
+             Proxima_palavra_2 = lead(Palavras,2),
+             Proxima_musica_2 = lead(Musicas,2),
+             Proxima_palavra_3 = lead(Palavras,3),
+             Proxima_musica_3 = lead(Musicas,3),
+             Palavras = str_c(Palavras, " ",
+                              Proxima_palavra_1, " ",
+                              Proxima_palavra_2, " ",
+                              Proxima_palavra_2)) %>%
+      filter((Musicas == Proxima_musica_1) &
+             (Musicas == Proxima_musica_2) &
+             (Musicas == Proxima_musica_3)) %>%
+      group_by(Palavras) %>%
+      count() %>%
+      arrange(desc(n)) %>%
+      ungroup() %>%
+      slice(1:30) %>%
+      mutate(Palavras = reorder(Palavras, n))
+    
+  }
+  
+  # Grafico
+  bb_count %>%
+  plot_ly(x = ~n,
+          y = ~Palavras,
+          type = 'bar',
+          orientation = 'h',
+          color = ~Palavras) %>%
+  layout(xaxis = list(title = "Frequência",tickfont = list(size = 15)),
+         yaxis = list(title = "",tickfont = list(size = 15)))%>%
+  hide_legend()
+  
+})
+
+
+```
+
+
+Clusters Genêro
+=======================================================================
+
+Row
+-----------------------------------------------------------------------
+
+### Dendograma de Clusters de Artistas 
+
+```{r}
+  
+# Renderiza Grafico
+renderPlot({
+    
+    # Importa dados
+    dummie <- read_csv("dummie_reduz.csv")
+    nomes <- read_rds("artistas_30.RDS")
+    
+    # Altera nome de linhas
+    row.names(dummie) <- nomes
+    
+    # Calcula matriz de distancias
+    d <- dist(dummie, method = input$metrica)
+    
+    # Calcula cluster
+    cl <- hclust(d, method = input$link)
+    
+    # Declara dendograma
+    dendro <- as.dendrogram(cl)
+    
+    # Amostra cores
+    cores <- sample(col_vector, input$k, replace = F)
+    
+    # Configura dendograma
+    gdend <- dendextend::as.ggdend(dendro %>%
+                                     set('branches_k_color', k = input$k,
+                                         value = cores) %>%
+                                     set('branches_lwd', 0.9) %>%
+                                     set('labels_colors', k = input$k,
+                                         value = cores) %>%
+                                     set('labels_cex', 0.9),
+                                   theme = theme_minimal(),
+                                   horiz = TRUE)
+    
+    # Indica angulos
+    gdend$labels$angle <- seq(90, -270, length = nrow(gdend$labels))
+    gdend$labels$vjust <- cos(gdend$labels$angle * pi) / (180)
+    gdend$labels$hjust <- sin(gdend$labels$angle * pi) / (180)
+    
+    # Gera Grafico
+    ggplot(gdend) +
+          theme(panel.grid.major = element_blank(),
+                axis.text = element_blank(),
+                axis.title = element_blank()) +
+          ylim(max(get_branches_heights(dendro)), -3) +
+          coord_polar(theta = 'x')
+    
+})
+
+
+```
+
+Clusters Músicas
+=======================================================================
+
+Row
+-----------------------------------------------------------------------
+
+### Dendograma de Clusters Musicais 
+
+```{r}
+  
+# Renderiza Grafico
+renderPlot({
+    
+    # Importa dados
+    dummie <- read_csv("dummie_reduz.csv")
+    nomes <- read_rds("artistas_30.RDS")
+    
+    # Altera nome de linhas
+    row.names(dummie) <- nomes
+    
+    # Calcula matriz de distancias
+    d <- dist(dummie, method = input$metrica)
+    
+    # Calcula cluster
+    cl <- hclust(d, method = input$link)
+    
+    # Declara dendograma
+    dendro <- as.dendrogram(cl)
+    
+    # Amostra cores
+    cores <- sample(col_vector, input$k, replace = F)
+    
+    # Configura dendograma
+    gdend <- dendextend::as.ggdend(dendro %>%
+                                     set('branches_k_color', k = input$k,
+                                         value = cores) %>%
+                                     set('branches_lwd', 0.9) %>%
+                                     set('labels_colors', k = input$k,
+                                         value = cores) %>%
+                                     set('labels_cex', 0.9),
+                                   theme = theme_minimal(),
+                                   horiz = TRUE)
+    
+    # Indica angulos
+    gdend$labels$angle <- seq(90, -270, length = nrow(gdend$labels))
+    gdend$labels$vjust <- cos(gdend$labels$angle * pi) / (180)
+    gdend$labels$hjust <- sin(gdend$labels$angle * pi) / (180)
+    
+    # Gera Grafico
+    ggplot(gdend) +
+          theme(panel.grid.major = element_blank(),
+                axis.text = element_blank(),
+                axis.title = element_blank()) +
+          ylim(max(get_branches_heights(dendro)), -3) +
+          coord_polar(theta = 'x')
+    
+})
+
+
+```
+
+Ajuda
+=======================================================================
+
+Row
+-----------------------------------------------------------------------
+
+### Informações sobre o App
+
+* Resumo
+
+  * O aplicativo Asom faz a contagem n-gramas de palavras
+e acordes para uma lista de artistas e agrupa os artistas em clusters. O objetivo deste projeto foi construir algumas ferramentas para exploração de acordes e letras de artistas com intuito de desenvolver um sistema de recomendação de artistas e músicas.
+  * Contagens de palavras e acordes podem ser visualizados em gráficos
+nos menus Acordes e Palavras.
+  * Cluster de artistas por semelhança de acordes e letras podem ser vizualizados no menu Clusters Genêros.
+
+* Funcionamento da Barra Lateral
+
+  * O botão Número de Acordes seleciona a quantidade de acordes em sequência.
+  * O botão Número de Palavras seleciona a quantidade de palavras em sequência.
+  * O botão Artista seleciona toda 50 músicas de um artista.
+  * O botão Metrica de Distâncias seleciona a metrica de distância para o algoritmo de cluster.
+  * O botão Número de Clusters seleciona em quantos cluster o algoritmo vai separar os artistas.
+  * O botão Metrica de Ligação seleciona qual tipo de ligação o algoritmo de cluster considera para formar os grupos de artistas.
+  
+
+* Banco de Dados
+  * O banco de dados contêm 77 observações e 8727 variáveis representando 77 artistas, 1404 acordes e 7323 palavras.
+  * Foram amostradas no maximo 50 musicas de cada artista para remover outliers (artistas que possuiam 100 + musicas) com objetivo de equilibrar as amostras.
+  * Total de 2310 músicas, sendo 2246 são tocadas por somente um artista e as outras 64 são tocadas por 1 ou mais artistas.
+  * As cifras de violão e as letras foram extraídas do site:
+    + https://www.cifraclub.com.br/
+  * Notebook colab-python para extração dos dados:
+    + https://colab.research.google.com/drive/1pau9BxN1mGoOwWvWT_Q1xIsijgkP3_Dj?usp=sharing
+  
+
