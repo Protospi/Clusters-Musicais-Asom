@@ -1,0 +1,13 @@
+name: aplicativo
+title: aplicativo
+username:
+account: loes
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 4137231
+bundleId: 4602581
+url: https://loes.shinyapps.io/aplicativo/
+when: 1621122239.46142
+lastSyncTime: 1621122239.46142
+asMultiple: FALSE
+asStatic: FALSE

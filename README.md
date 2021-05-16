@@ -1,12 +1,18 @@
 # Clusters Musicais Asom
 
+### Link do Aplicativo
+
+[Asom](https://loes.shinyapps.io/Asom/)
+
+
 ### Informações sobre o App
 
 ***
 * Resumo
 
   * O aplicativo de clusters musicais Asom faz a contagem n-gramas de palavras
-e acordes para uma lista de artistas e agrupa os artistas em clusters. O objetivo deste projeto foi construir algumas ferramentas para exploração de acordes e letras de artistas com intuito de desenvolver um sistema de recomendação de artistas e músicas.
+e acordes para uma lista de artistas e agrupa os artistas em clusters.
+  * O objetivo deste projeto foi construir algumas ferramentas para exploração de acordes e letras de artistas.
   * Contagens de palavras e acordes podem ser visualizados em gráficos
 nos menus Acordes e Palavras.
   * Cluster de artistas por semelhança de acordes e letras podem ser visualizados no menu Clusters Gêneros.
