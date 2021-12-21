@@ -1,9 +1,16 @@
 # Clusters Musicais Asom
 
+***
+
 ### Link do Aplicativo
 
-[Asom](https://loes.shinyapps.io/Asom/)
+[Asom](https://drope.shinyapps.io/aplicativo/)
 
+### Link do Relatório
+
+[Asom](https://github.com/Protospi/Clusters-Musicais-Asom/blob/main/relatorio_tp2_clusters_musicais.pdf)
+
+***
 
 ### Informações sobre o App
 
@@ -15,7 +22,7 @@ e acordes para uma lista de artistas e agrupa os artistas em clusters.
   * O objetivo deste projeto foi construir algumas ferramentas para exploração de acordes e letras de artistas.
   * Contagens de palavras e acordes podem ser visualizados em gráficos
 nos menus Acordes e Palavras.
-  * Cluster de artistas por semelhança de acordes e letras podem ser visualizados no menu Clusters Gêneros.
+  * Cluster de artistas por semelhança de acordes e letras podem ser visualizados no menu Clusters Artistas.
   
 ***
 
@@ -31,9 +38,6 @@ nos menus Acordes e Palavras.
 ***  
 
 * Banco de Dados
-  * O banco de dados contém 77 observações e 8727 variáveis representando 77 artistas, 1404 acordes e 7323 palavras.
-  * Foram amostradas no máximo 50 músicas de cada artista para remover outliers (artistas que possuíam 100 + musicas) com objetivo de equilibrar as amostras.
-  * Total de 2310 músicas, sendo 2246 são tocadas por somente um artista e as outras 64 são tocadas por 1 ou mais artistas.
   * As cifras de violão e as letras foram extraídas do site:
     + https://www.cifraclub.com.br/
   * Notebook colab-python para extração dos dados:
@@ -42,13 +46,3 @@ nos menus Acordes e Palavras.
   
 ***
 
-* Aplicativo em Produção
-  + Cada segundo de um arquivo do tipo Mp3 possui 44.100 pontos de dados por segundo.
-  + Em média um arquivo de áudio do tipo Mp3 possui 3 Mb.
-  + Empresas como Spotify reivindicam que possuem dezenas de milhões de músicas em seu acervo.
-  + Aplicar modelos de clusters em uma base de dados com esse volume seria praticamente impossível.
-  + Uma possível solução seria reduzir a informação do áudio ou utilizar as letras e acordes.
-  + O aplicativo pode ser utilizado como um sistema de recomendações para usuários de empresas de music stream.
-  
-  
-***

@@ -1,0 +1,30 @@
+\contentsline {section}{1 - Entendimento do Negócio}{2}{section*.2}%
+\contentsline {subsection}{1.1 Objetivos do Negócio}{3}{section*.3}%
+\contentsline {subsection}{1.2 Avaliação da Situação}{3}{section*.4}%
+\contentsline {subsection}{1.3 Objetivos da Mineração de Dados}{3}{section*.5}%
+\contentsline {subsection}{1.4 Descrição do Projeto}{4}{section*.6}%
+\contentsline {section}{2 - Entendimento dos Dados}{4}{section*.7}%
+\contentsline {subsection}{2.1 Coleta dos Dados}{4}{section*.8}%
+\contentsline {subsubsection}{Script da Função \(extrai \_cifra\) na liguagem Python}{4}{section*.9}%
+\contentsline {subsubsection}{Script da Função \(extrai \_letra\) na liguagem Python}{5}{section*.10}%
+\contentsline {subsubsection}{Script do Algoritmo de Extração}{5}{section*.11}%
+\contentsline {subsection}{2.2 Descrição dos Dados}{5}{section*.12}%
+\contentsline {subsubsection}{Tabela da Amostra dos Arquivos de 10 Artistas}{6}{section*.13}%
+\contentsline {subsubsection}{Importação dos dados e Junção.}{6}{section*.14}%
+\contentsline {subsection}{2.3 Verificação da Qualidade e Integridade dos Dados}{7}{section*.15}%
+\contentsline {subsubsection}{Dados Faltantes e Limpeza}{7}{section*.16}%
+\contentsline {subsection}{2.4 Exploração dos Dados}{7}{section*.17}%
+\contentsline {subsubsection}{Distribuição da Contagem de Músicas por artista}{7}{section*.18}%
+\contentsline {subsubsection}{Número de Acordes Mais Frequentes}{8}{section*.19}%
+\contentsline {subsubsection}{Número de Palavras Mais Frequentes}{9}{section*.20}%
+\contentsline {section}{3 Pré Processamento dos Dados}{9}{section*.21}%
+\contentsline {subsection}{3.1 Matriz Esparsa da Modelagem}{10}{section*.22}%
+\contentsline {section}{4 - Modelagem}{10}{section*.23}%
+\contentsline {subsection}{4.1 Matriz de Distâncias}{10}{section*.24}%
+\contentsline {subsection}{4.2 Modelo}{10}{section*.25}%
+\contentsline {section}{5 Avaliação do Modelo}{11}{section*.26}%
+\contentsline {subsection}{5.1 Dendrograma de Resultados}{11}{section*.27}%
+\contentsline {section}{6 Implantação}{12}{section*.28}%
+\contentsline {subsection}{6.1 Aplicativo Shiny Clusters Musicais Asom}{12}{section*.29}%
+\contentsline {section}{7 Fontes e Referencias}{13}{section*.30}%
+\contentsline {subsection}{7.1 Links}{13}{section*.31}%

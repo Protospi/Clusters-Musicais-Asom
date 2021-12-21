@@ -1,0 +1,14 @@
+name: aplicativo
+title: aplicativo
+username:
+account: drope
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5356007
+bundleId: 5395514
+url: https://drope.shinyapps.io/aplicativo/
+when: 1640050625.38767
+lastSyncTime: 1640050625.38767
+asMultiple: TRUE
+asStatic: FALSE
+ignoredFiles: relatorio_tp2_clusters_musicais.Rmd

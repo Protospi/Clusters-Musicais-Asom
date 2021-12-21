@@ -72,36 +72,6 @@ letras <- letras %>% na.omit()
 
 # --------------------------------------------------------------------------
 
-# Seleciona artistas em ordem alphabetica
-artistas <- c("adoniran-barbosa", "angra", "amado-batista", "banda-calypso",
-              "claudia-leitte", "banda-eva", "alceu-valenca", "ana-carolina",
-              "anitta", "arlindo-cruz", "baden-powell", "barao-vermelho",
-              "beth-carvalho", "bezerra-da-silva", "bonde-do-tigrao",
-              "bruno-e-marrone", "caetano-veloso", "capital-inicial",
-              "cartola", "cazuza", "cassia-eller",  "chico-buarque",
-              "chitaozinho-e-xororo", "clara-nunes", "cordel-do-fogo-encantado",
-              "chiclete-com-banana", "asa-de-aguia", "olodum", "timbalada",
-              "araketu", "terrasamba", "criolo", "daniela-mercury", "djavan",
-              "dj-marlboro", "dennis-dj", "dorival-caymmi",
-              "dominguinhos", "fernando-sorocaba", "paulinho-da-viola",
-              "ednardo", "elis-regina", "emicida", "falamansa","zeca-pagodinho",
-              "gilbertp-gil", "gusttavo-lima", "gog", "gonzaguinha",
-              "henrique-e-juliano", "ivete-sangalo", "jackson-do-pandeiro",
-              "jorge-ben-jor", "jorge-mateus", "joao-nogueira", "lenine",
-              "legiao-urbana", "los-hermanos", "luan-santana", "luiz-gonzaga",
-              "joao-bosco", "marilia-mendonca", "marisa-monte", "marcelo-d2",
-              "mc-catra", "mc-kevinho", "milton-nascimento", "mestre-ambrosio",
-              "mv-bill", "nacao-zumbi", "nando-reis", "natiruts",
-              "nelson-cavaquinho", "os-paralamas-do-sucesso", 
-              "projota", "racionais-mcs", "ratos-de-porao", "raul-seixas",
-              "o-rappa", "rzo", "charlie-brown-jr", "raimundos", "lulu-santos",
-              "toquinho", "titas", "mutantes", "skank", "tom-jobim","elomar",
-              "sepultura", "sabotage", "seu-jorge", "trio-nordestino",
-              "vinicius-de-moraes", "victor-leo", "ze-ramalho", 
-              "zeze-di-camargo-e-luciano") %>% sort()
-
-# --------------------------------------------------------------------------
-
 # seleciona 65 musicas para clusters de musicas
 musicas_65 <- c("trem-das-onze", "descobri-que-te-amo", "vaca-profana",
                 "canto-de-ossanha", "morena-tropicana","o-tempo-nao-para",
@@ -191,7 +161,7 @@ dim(dummie_palavras)
 # --------------------------------------------------------------------------
 
 # Unifica dummies de acordes e palavras
-dummie <- data.frame(dummie_palavras[1:62, 5:2493],
+dummie <- cbind(dummie_palavras[1:62, 5:2493],
                      dummie_acordes[1:62, 2:298])
 
 # Recupera nome de musicas
@@ -205,11 +175,147 @@ row.names(dummie) <- musicas
 
 # Imprime amostra do banco
 dummie[1:10, 1:10]
+dummie[1:10, 2500:2535]
 
 # Dimensao do banco
 dim(dummie)
 
 # Escreve dummie
-# write_csv(dummie, "musicas_acordes_palavras.csv")
+fwrite(dummie, "dados/musicas_acordes_palavras.csv")
+teste <- fread("dados/musicas_acordes_palavras.csv")
 
 # --------------------------------------------------------------------------
+
+# Importa musicas palavras dummie e nomes das musicas
+dummie <- fread("dados/musicas_acordes_palavras.csv") %>% as.data.frame()
+nomes_musicas <- readRDS("dados/musicas") 
+
+# Coloca nome nas linhas para o algoritmo hclust
+row.names(dummie) <- nomes_musicas
+
+# Imprime tabela
+kable(dummie[c(1:5, 57:62), c(1:5, 2500:2505)])
+
+# --------------------------------------------------------------------------
+
+# Seleciona artistas em ordem alphabetica
+artistas <- c("adoniran-barbosa", "angra", "amado-batista", "banda-calypso",
+              "claudia-leitte", "banda-eva", "alceu-valenca", "ana-carolina",
+              "anitta", "arlindo-cruz", "baden-powell", "barao-vermelho",
+              "beth-carvalho", "bezerra-da-silva", "bonde-do-tigrao",
+              "bruno-e-marrone", "caetano-veloso", "capital-inicial",
+              "cartola", "cazuza", "cassia-eller",  "chico-buarque",
+              "chitaozinho-e-xororo", "clara-nunes", "cordel-do-fogo-encantado",
+              "chiclete-com-banana", "asa-de-aguia", "olodum", "timbalada",
+              "araketu", "terrasamba", "criolo", "daniela-mercury", "djavan",
+              "dj-marlboro", "dennis-dj", "dorival-caymmi",
+              "dominguinhos", "fernando-sorocaba", "paulinho-da-viola",
+              "ednardo", "elis-regina", "emicida", "falamansa","zeca-pagodinho",
+              "gilbertp-gil", "gusttavo-lima", "gog", "gonzaguinha",
+              "henrique-e-juliano", "ivete-sangalo", "jackson-do-pandeiro",
+              "jorge-ben-jor", "jorge-mateus", "joao-nogueira", "lenine",
+              "legiao-urbana", "los-hermanos", "luan-santana", "luiz-gonzaga",
+              "joao-bosco", "marilia-mendonca", "marisa-monte", "marcelo-d2",
+              "mc-catra", "mc-kevinho", "milton-nascimento", "mestre-ambrosio",
+              "mv-bill", "nacao-zumbi", "nando-reis", "natiruts",
+              "nelson-cavaquinho", "os-paralamas-do-sucesso", 
+              "projota", "racionais-mcs", "ratos-de-porao", "raul-seixas",
+              "o-rappa", "rzo", "charlie-brown-jr", "raimundos", "lulu-santos",
+              "toquinho", "titas", "mutantes", "skank", "tom-jobim","elomar",
+              "sepultura", "sabotage", "seu-jorge", "trio-nordestino",
+              "vinicius-de-moraes", "victor-leo", "ze-ramalho", 
+              "zeze-di-camargo-e-luciano") %>% sort()
+
+# --------------------------------------------------------------------------
+
+# Transforma acordes em one hot encoding
+
+# --------------------------------------------------------------------------
+
+# Trasnforma em fator
+data = acordes %>%
+  select(Artistas, Acordes) %>%
+  mutate(Acordes = as.factor(Acordes)) %>% 
+  filter(Artistas %in% artistas)
+
+# Transforma em dummy one hot encoding
+dummie_acordes <- dcast(data = data, Artistas ~ Acordes, length)
+
+# Imprime amostra do banco
+head(dummie_acordes[,1:10])
+
+# Dimensao do banco
+dim(dummie_acordes)
+
+# Escreve musicas_acordes
+# write_csv(dummie_acordes, "musicas_acordes.csv")
+
+# --------------------------------------------------------------------------
+
+# Transforma letras em one hot encoding
+
+# --------------------------------------------------------------------------
+
+# Transforma em fator
+data = letras[, .(Artistas, Palavras)]
+
+# Limpa string
+data[ , Palavras := tolower(Palavras)
+][, Palavras := sub("^([[:alpha:]]*).*", "\\1", Palavras)]
+
+# seleciona primeiras 200000
+data = data %>% filter(Artistas %in% artistas)
+
+# Transforma em dummy one hot encoding
+dummie_palavras <- dcast(data = data, Artistas ~ Palavras, length) 
+
+# Imprime amostra do banco
+head(dummie_palavras[,1:10])
+
+# Dimensao do banco
+dim(dummie_palavras)
+
+# Escreve musicas_palavras.csv
+# write_csv(dummie_palavras, "musicas_palavras.csv")
+
+# --------------------------------------------------------------------------
+
+# Unifica acordes e palavras em um dataframe
+
+# --------------------------------------------------------------------------
+
+# Unifica dummies de acordes e palavras
+dummie <- cbind(dummie_palavras[1:93, 5:38719],
+                dummie_acordes[1:93, 2:3906])
+
+# Recupera nome de musicas
+artistas_93 <- dummie_palavras %>% select(Artistas) %>%  pull()
+
+# Escreve arquivo
+write_rds(artistas_93, "dados/artistas_93")
+
+# Atribui nome de linhas
+row.names(dummie) <- artistas_93
+
+# Imprime amostra do banco
+dummie[1:10, 1:10]
+dummie[1:10, 2500:2535]
+
+# Dimensao do banco
+dim(dummie)
+
+# Escreve dummie
+fwrite(dummie, "dados/artistas_acordes_palavras.csv")
+teste <- fread("dados/artistas_acordes_palavras.csv")
+
+# --------------------------------------------------------------------------
+
+# Importa musicas palavras dummie e nomes das musicas
+dummie <- fread("dados/musicas_acordes_palavras.csv") %>% as.data.frame()
+nomes_musicas <- readRDS("dados/musicas") 
+
+# Coloca nome nas linhas para o algoritmo hclust
+row.names(dummie) <- nomes_musicas
+
+# Imprime tabela
+kable(dummie[c(1:5, 57:62), c(1:5, 2500:2505)])
