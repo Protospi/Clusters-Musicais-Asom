@@ -1,16 +1,13 @@
 # Clusters Musicais Asom
 
-***
-
 ### Link do Aplicativo
 
-[Asom](https://drope.shinyapps.io/aplicativo/)
+[Aplicativo Shiny](https://drope.shinyapps.io/aplicativo/)
 
 ### Link do Relatório
 
-[Asom](https://github.com/Protospi/Clusters-Musicais-Asom/blob/main/relatorio_tp2_clusters_musicais.pdf)
+[Relatório PDF](https://github.com/Protospi/Clusters-Musicais-Asom/blob/main/relatorio_tp2_clusters_musicais.pdf)
 
-***
 
 ### Informações sobre o App
 
